@@ -10,31 +10,87 @@
 
 import React from 'react';
 import {
+  FlatList,
+  Image,
   SafeAreaView,
-  ScrollView,
   StatusBar,
-  useColorScheme,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
-import {Colors} from 'react-native/Libraries/NewAppScreen';
+import {MockedStations} from '../models/nearby/MockedStations';
+import {Station} from '../models/nearby/Station';
+import Colors from '../themes/Colors';
+import Images from '../themes/Images';
 
 const NearbyList = () => {
-  const isDarkMode = useColorScheme() === 'dark';
+  const itemStation = (station: Station) => {
+    return (
+      <View style={styles.rowContainer}>
+        <View style={{flexDirection: 'row'}}>
+          <View style={{flex: 1}}>
+            <Text style={styles.sectionTitle}>{station.name}</Text>
+            <Text>
+              {station.address}, {station.city}
+            </Text>
+          </View>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}>
+            <Text>Distance</Text>
+            <Image source={Images.RightArrow} style={{width: 14, height: 14}} />
+          </View>
+        </View>
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+        <View style={styles.powerRow}>
+          <View style={styles.powerCell}>
+            <Text style={styles.sectionTitle}>00</Text>
+            <Text>kW</Text>
+          </View>
+          <View style={styles.powerCell}>
+            <Text style={styles.sectionTitle}>00</Text>
+            <Text>kW</Text>
+          </View>
+          <View style={styles.powerCell}>
+            <Text style={styles.sectionTitle}>00</Text>
+            <Text>kW</Text>
+          </View>
+          <View style={styles.powerCell}>
+            <Text style={styles.sectionTitle}>00</Text>
+            <Text>kW</Text>
+          </View>
+        </View>
+      </View>
+    );
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle={'dark-content'} />
+      <FlatList
+        data={MockedStations}
+        keyExtractor={item => item.address}
+        renderItem={({item, index}) => itemStation(item)}
       />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}></ScrollView>
     </SafeAreaView>
   );
 };
 
 export default NearbyList;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+  rowContainer: {
+    backgroundColor: Colors.cellBackground,
+    padding: 16,
+    margin: 4,
+  },
+  sectionTitle: {fontWeight: 'bold', fontSize: 18},
+  powerRow: {flexDirection: 'row', flex: 1, marginVertical: 16},
+  powerCell: {flex: 1},
+});

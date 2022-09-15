@@ -10,6 +10,7 @@
 
 import React, {useEffect, useState} from 'react';
 import {
+  Alert,
   Image,
   Keyboard,
   KeyboardAvoidingView,
@@ -20,8 +21,13 @@ import {
   Text,
   View,
 } from 'react-native';
+import {LOGIN_URL} from '../constants/endpoints';
+import {USER_DATA} from '../constants/keys';
+import {LoginResponse} from '../models/auth/LoginResponse';
 
 import FloatingLabelInput from '../reusables/FloatingLabelInput';
+import {commonAPICall} from '../services/api';
+import {retrieveItem, storeItem} from '../services/storeUtil';
 import Colors from '../themes/Colors';
 import Images from '../themes/Images';
 
@@ -30,13 +36,34 @@ const Login = ({navigation, route}) => {
   const [password, setPassword] = useState('');
   const [loginImage, showLoginImage] = useState(true);
 
+  const attemptLogin = (userName: string, password: string) => {
+    const body = {email: 'candidate1@virta.global', code: '1Candidate!'};
+    commonAPICall(LOGIN_URL, body)
+      .then(response => {
+        if (response?.success) {
+          const userData: LoginResponse = response.payload;
+
+          storeItem(USER_DATA, userData).then(() => {
+            retrieveItem(USER_DATA).then(response => {
+              navigation.replace('NearbyList');
+            });
+          });
+        } else {
+          Alert.alert('Ooops', 'Response returned but is malformed!');
+        }
+        console.log('response: ', response);
+      })
+      .catch(error => {
+        console.log('catch: ', error);
+        Alert.alert('Ooops', error.toString());
+      });
+  };
+
   useEffect(() => {
     Keyboard.addListener('keyboardDidShow', () => {
-      console.log('keyboard shown');
       showLoginImage(false);
     });
     Keyboard.addListener('keyboardDidHide', () => {
-      console.log('keyboard hide');
       showLoginImage(true);
     });
   }, []);
@@ -109,11 +136,11 @@ const Login = ({navigation, route}) => {
               justifyContent: 'center',
             }}
             onPress={() => {
-              console.log('im adsfas');
+              attemptLogin(userName, password);
             }}>
             <Text
               style={{
-                color: Colors.textColor,
+                color: Colors.text,
                 fontSize: 18,
                 marginHorizontal: 16,
                 fontWeight: 'bold',

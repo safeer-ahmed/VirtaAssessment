@@ -10,58 +10,62 @@
 
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import React from 'react';
-import {Image, LogBox, Text, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {ActivityIndicator, LogBox, View} from 'react-native';
+import {USER_DATA} from './src/constants/keys';
+import {LoginResponse} from './src/models/auth/LoginResponse';
+import AppHeader from './src/reusables/AppHeader';
 import Login from './src/screens/Login';
 import NearbyList from './src/screens/NearbyList';
-import Colors from './src/themes/Colors';
-import Images from './src/themes/Images';
+import {retrieveItem} from './src/services/storeUtil';
 
 LogBox.ignoreAllLogs();
 const Stack = createNativeStackNavigator();
 
-const LoginHeader = () => {
-  return (
+const App = () => {
+  const [wait, keepWaiting] = useState(true);
+  const [initialRoute, setInitialRouteName] = useState('Login');
+
+  const validateUser = () => {
+    retrieveItem(USER_DATA).then(response => {
+      // const userData: LoginResponse = response;
+      // TODO: Perform the token expiry check
+
+      setInitialRouteName('NearbyList');
+      keepWaiting(false);
+    });
+  };
+
+  useEffect(() => {
+    validateUser();
+  }, []);
+
+  return wait ? (
     <View
       style={{
         flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 16,
       }}>
-      <Text
-        style={{
-          fontWeight: 'bold',
-          fontSize: 16,
-          color: Colors.textColor,
-        }}>
-        Log In and Charge!
-      </Text>
-      <Image
-        source={Images.Cross}
-        style={{
-          width: 24,
-          height: 24,
-          marginRight: 16,
-        }}
-      />
+      <ActivityIndicator size={'large'} />
     </View>
-  );
-};
-
-const App = () => {
-  return (
+  ) : (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator initialRouteName={initialRoute}>
         <Stack.Screen
           name="Login"
           component={Login}
           options={{
-            headerTitle: props => <LoginHeader />,
+            headerTitle: props => <AppHeader title="Log In and Charge!" />,
           }}
         />
-        <Stack.Screen name="NearbyList" component={NearbyList} />
+        <Stack.Screen
+          name="NearbyList"
+          component={NearbyList}
+          options={{
+            headerTitle: props => <AppHeader title="Nearby stations" />,
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
