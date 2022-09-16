@@ -21,14 +21,13 @@ import {
   Text,
   View,
 } from 'react-native';
-import {LOGIN_URL} from '../constants/endpoints';
-import {USER_DATA} from '../constants/keys';
+import {EndPoints, Keys} from '../constants';
 import {LoginResponse} from '../models/auth/LoginResponse';
 import AppHeader from '../reusables/AppHeader';
 
 import FloatingLabelInput from '../reusables/FloatingLabelInput';
-import {commonAPICall} from '../services/api';
-import {retrieveItem, storeItem} from '../services/storeUtil';
+import {API} from '../services';
+import {storeItem} from '../services/storeUtil';
 import Colors from '../themes/Colors';
 import Images from '../themes/Images';
 
@@ -38,25 +37,23 @@ const Login = ({navigation, route}) => {
   const [loginImage, showLoginImage] = useState(true);
 
   const attemptLogin = (userName: string, password: string) => {
-    const body = {email: 'candidate1@virta.global', code: '1Candidate!'};
-    commonAPICall(LOGIN_URL, body)
-      .then(response => {
-        if (response?.success) {
-          const userData: LoginResponse = response.payload;
+    // const body = {email: 'candidate1@virta.global', code: '1Candidate!'};
+    const body = {email: userName, code: password};
 
-          storeItem(USER_DATA, userData).then(() => {
-            retrieveItem(USER_DATA).then(response => {
-              navigation.replace('NearbyList');
-            });
+    API.post(EndPoints.LOGIN_URL, body)
+      .then(response => {
+        if (response.statusCode === 200) {
+          const userData: LoginResponse = response;
+
+          storeItem(Keys.USER_DATA, userData).then(() => {
+            navigation.replace('NearbyList');
           });
         } else {
-          Alert.alert('Ooops', 'Response returned but is malformed!');
+          Alert.alert(JSON.stringify(response));
         }
-        console.log('response: ', response);
       })
-      .catch(error => {
-        console.log('catch: ', error);
-        Alert.alert('Ooops', error.toString());
+      .catch(err => {
+        console.log('err: ', err);
       });
   };
 

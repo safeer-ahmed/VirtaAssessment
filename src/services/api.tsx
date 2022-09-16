@@ -1,35 +1,53 @@
 /** @format */
 
 import axios from 'axios';
+import {Configs} from '../constants';
 
-const getEndpoint = (endPoint: string) => {
-  return 'https://apitest.virta.fi/v4/' + endPoint;
-};
+function baseAxios(options: any) {
+  const defaultHeaders = {
+    'Content-Type': 'application/json',
+  };
 
-export const commonAPICall = async (
-  requestedURL: string,
-  payload: any,
-  put: boolean = false,
-) => {
-  try {
-    let data;
+  const headers = {...defaultHeaders, ...options?.headers};
+  return axios.create({
+    baseURL: Configs.BASE_URL,
+    timeout: options?.timeout || Configs.API_TIMEOUT,
+    headers: headers,
+  });
+}
 
-    const url = getEndpoint(requestedURL);
+function executeRequest(
+  method: string,
+  pathname: string,
+  data: any,
+  options: any,
+) {
+  const body = !data ? {} : {data};
+  const reqObj = {method, url: pathname, ...body};
+  const baseAxiosRequest = baseAxios(options);
 
-    if (put) {
-      data = await (await axios.put(url, payload)).data;
-    } else if (payload) {
-      data = await (await axios.post(url, payload)).data;
-    } else {
-      data = await (await axios.get(url)).data;
-    }
+  console.log('body: ', body);
 
-    if (data) {
-      return {success: true, payload: {...data}};
-    } else {
-      return {success: false, payload: data};
-    }
-  } catch (error) {
-    return {success: false, payload: error};
-  }
+  return baseAxiosRequest
+    .request(reqObj)
+    .then(res => {
+      return {...res.data, ...{statusCode: res.status}};
+    })
+    .catch(error => {
+      return {
+        ...error?.response?.data,
+        ...{statusCode: error?.response?.status},
+      };
+    });
+}
+
+export default {
+  get(pathname: string, query: string) {
+    return executeRequest('get', pathname, null, {
+      query: query,
+    });
+  },
+  post(pathname: string, data: any) {
+    return executeRequest('post', pathname, data, null);
+  },
 };

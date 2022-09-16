@@ -1,1 +1,3 @@
-export const USER_DATA = 'user_data';
+export default {
+  USER_DATA: 'user_data',
+};
