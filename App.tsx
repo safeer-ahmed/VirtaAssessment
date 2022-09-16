@@ -12,7 +12,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React, {useEffect, useState} from 'react';
 import {ActivityIndicator, LogBox, View} from 'react-native';
-import {USER_DATA} from './src/constants/keys';
+import {Keys} from './src/constants';
 import Login from './src/screens/Login';
 import NearbyList from './src/screens/NearbyList';
 import {retrieveItem} from './src/services/storeUtil';
@@ -25,7 +25,7 @@ const App = () => {
   const [initialRoute, setInitialRouteName] = useState('Login');
 
   const validateUser = () => {
-    retrieveItem(USER_DATA).then(response => {
+    retrieveItem(Keys.USER_DATA).then(response => {
       if (response) {
         // TODO: Perform the token expiry check
         setInitialRouteName('NearbyList');
