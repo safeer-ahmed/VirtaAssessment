@@ -9,7 +9,7 @@
  */
 
 import {CommonActions} from '@react-navigation/native';
-import React, {useLayoutEffect} from 'react';
+import React, {useEffect, useLayoutEffect, useState} from 'react';
 import {
   FlatList,
   Image,
@@ -26,8 +26,11 @@ import AppHeader from '../reusables/AppHeader';
 import {clearStorage} from '../services/storeUtil';
 import Colors from '../themes/Colors';
 import Images from '../themes/Images';
+import {calculateDistance} from '../utils/Utils';
 
 const NearbyList = ({navigation, route}) => {
+  const [stations, setStations] = useState<Station[]>();
+
   const itemStation = (station: Station) => {
     return (
       <View style={styles.rowContainer}>
@@ -43,7 +46,7 @@ const NearbyList = ({navigation, route}) => {
               flexDirection: 'row',
               alignItems: 'center',
             }}>
-            <Text>Distance</Text>
+            <Text>{Math.round(station.distanceFromMe).toFixed(2)} km</Text>
             <Image source={Images.RightArrow} style={{width: 14, height: 14}} />
           </View>
         </View>
@@ -69,6 +72,33 @@ const NearbyList = ({navigation, route}) => {
       </View>
     );
   };
+
+  useEffect(() => {
+    const myLocation = {latitude: 62.6040496, longitude: 29.7444736};
+    MockedStations.map((item, index) => {
+      console.log(
+        'index: ',
+        index,
+        ', lat',
+        item.latitude,
+        ', lon: ',
+        item.longtitude,
+      );
+
+      MockedStations[index].distanceFromMe = calculateDistance(
+        myLocation.latitude,
+        myLocation.longitude,
+        item.latitude,
+        item.longtitude,
+        'K',
+      );
+    });
+
+    const distancedList = MockedStations.sort(
+      (a, b) => a.distanceFromMe - b.distanceFromMe,
+    );
+    setStations(distancedList);
+  }, []);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -96,7 +126,7 @@ const NearbyList = ({navigation, route}) => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle={'dark-content'} />
       <FlatList
-        data={MockedStations}
+        data={stations}
         keyExtractor={item => item?.id.toString()}
         renderItem={({item, index}) => itemStation(item)}
       />

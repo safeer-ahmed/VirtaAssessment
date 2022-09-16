@@ -5,6 +5,7 @@ export interface Station {
   name: string;
   latitude: number;
   longtitude: number;
+  distanceFromMe: number; //This is a local variable to be initialized based on each user location
   icon: number;
   address: string;
   city: string;
