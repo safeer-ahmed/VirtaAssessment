@@ -8,7 +8,8 @@
  * @format
  */
 
-import React from 'react';
+import {CommonActions} from '@react-navigation/native';
+import React, {useLayoutEffect} from 'react';
 import {
   FlatList,
   Image,
@@ -18,12 +19,15 @@ import {
   Text,
   View,
 } from 'react-native';
+import {USER_DATA} from '../constants/keys';
 import {MockedStations} from '../models/nearby/MockedStations';
 import {Station} from '../models/nearby/Station';
+import AppHeader from '../reusables/AppHeader';
+import {clearStorage} from '../services/storeUtil';
 import Colors from '../themes/Colors';
 import Images from '../themes/Images';
 
-const NearbyList = () => {
+const NearbyList = ({navigation, route}) => {
   const itemStation = (station: Station) => {
     return (
       <View style={styles.rowContainer}>
@@ -66,12 +70,34 @@ const NearbyList = () => {
     );
   };
 
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: () => (
+        <AppHeader
+          title="Nearby List"
+          rightPress={() => {
+            clearStorage(USER_DATA)
+              .then(() => {
+                navigation.dispatch(
+                  CommonActions.reset({
+                    index: 0,
+                    routes: [{name: 'Login'}],
+                  }),
+                );
+              })
+              .catch();
+          }}
+        />
+      ),
+    });
+  }, [navigation]);
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle={'dark-content'} />
       <FlatList
         data={MockedStations}
-        keyExtractor={item => item.address}
+        keyExtractor={item => item?.id.toString()}
         renderItem={({item, index}) => itemStation(item)}
       />
     </SafeAreaView>

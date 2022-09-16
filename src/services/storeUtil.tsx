@@ -7,3 +7,7 @@ export const storeItem = (key: string, value: any) => {
 export const retrieveItem = (key: string) => {
   return AsyncStorage.getItem(key);
 };
+
+export const clearStorage = (key: string) => {
+  return AsyncStorage.clear();
+};

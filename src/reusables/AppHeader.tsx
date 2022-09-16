@@ -1,9 +1,10 @@
-import {Image, Text, View} from 'react-native';
+import {Image, Text, TouchableOpacity, View} from 'react-native';
 import Colors from '../themes/Colors';
 import Images from '../themes/Images';
 
 interface HeaderProps {
   title: string;
+  rightPress: Function;
 }
 
 const AppHeader = (props: HeaderProps) => {
@@ -24,14 +25,16 @@ const AppHeader = (props: HeaderProps) => {
         }}>
         {props.title}
       </Text>
-      <Image
-        source={Images.Cross}
-        style={{
-          width: 24,
-          height: 24,
-          marginRight: 16,
-        }}
-      />
+      <TouchableOpacity onPress={props.rightPress}>
+        <Image
+          source={Images.Cross}
+          style={{
+            width: 24,
+            height: 24,
+            marginRight: 16,
+          }}
+        />
+      </TouchableOpacity>
     </View>
   );
 };
