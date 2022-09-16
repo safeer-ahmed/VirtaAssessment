@@ -8,7 +8,7 @@
  * @format
  */
 
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useLayoutEffect, useState} from 'react';
 import {
   Alert,
   Image,
@@ -24,6 +24,7 @@ import {
 import {LOGIN_URL} from '../constants/endpoints';
 import {USER_DATA} from '../constants/keys';
 import {LoginResponse} from '../models/auth/LoginResponse';
+import AppHeader from '../reusables/AppHeader';
 
 import FloatingLabelInput from '../reusables/FloatingLabelInput';
 import {commonAPICall} from '../services/api';
@@ -65,6 +66,19 @@ const Login = ({navigation, route}) => {
     });
     Keyboard.addListener('keyboardDidHide', () => {
       showLoginImage(true);
+    });
+  }, []);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: () => (
+        <AppHeader
+          title="Log In and Charge!"
+          rightPress={() => {
+            console.log('cross pressed');
+          }}
+        />
+      ),
     });
   }, []);
 

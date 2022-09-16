@@ -13,8 +13,6 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React, {useEffect, useState} from 'react';
 import {ActivityIndicator, LogBox, View} from 'react-native';
 import {USER_DATA} from './src/constants/keys';
-import {LoginResponse} from './src/models/auth/LoginResponse';
-import AppHeader from './src/reusables/AppHeader';
 import Login from './src/screens/Login';
 import NearbyList from './src/screens/NearbyList';
 import {retrieveItem} from './src/services/storeUtil';
@@ -28,10 +26,12 @@ const App = () => {
 
   const validateUser = () => {
     retrieveItem(USER_DATA).then(response => {
-      // const userData: LoginResponse = response;
-      // TODO: Perform the token expiry check
-
-      setInitialRouteName('NearbyList');
+      if (response) {
+        // TODO: Perform the token expiry check
+        setInitialRouteName('NearbyList');
+      } else {
+        setInitialRouteName('Login');
+      }
       keepWaiting(false);
     });
   };
@@ -52,20 +52,8 @@ const App = () => {
   ) : (
     <NavigationContainer>
       <Stack.Navigator initialRouteName={initialRoute}>
-        <Stack.Screen
-          name="Login"
-          component={Login}
-          options={{
-            headerTitle: props => <AppHeader title="Log In and Charge!" />,
-          }}
-        />
-        <Stack.Screen
-          name="NearbyList"
-          component={NearbyList}
-          options={{
-            headerTitle: props => <AppHeader title="Nearby stations" />,
-          }}
-        />
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="NearbyList" component={NearbyList} />
       </Stack.Navigator>
     </NavigationContainer>
   );
